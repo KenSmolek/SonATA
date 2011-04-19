@@ -34,8 +34,8 @@
 // Uses Mersenne Twister by Takuji Nishimura and Makoto Matsumoto.
 //
 
+#include <sys/time.h>
 #include "Gaussian.h"
-#include "Mersenne.h"
 
 namespace gauss {
 
@@ -83,9 +83,12 @@ Gaussian::setup(int32_t seed_, float64_t bandwidthMHz_, float64_t avgPower_)
 void
 Gaussian::setSeed(int32_t seed_)
 {
-	if (!(seed = seed_))
-		seed = static_cast<int32_t> (time(NULL));
-	init_genrand64(seed);
+	if (!(seed = seed_)) {
+		timeval t;
+		gettimeofday(&t, NULL);
+		seed = static_cast<int32_t> (t.tv_usec);
+	}
+	mersenne.init_genrand64(seed);
 }
 
 /**
@@ -176,8 +179,8 @@ Gaussian::getSamples(ComplexPair *data, int32_t n)
 		ComplexFloat64 f = getSample();
 
 		// using 4-bit integers, so saturate the output
-		int32_t re = (int32_t) rint(f.real());
-		int32_t im = (int32_t) rint(f.imag());
+		int32_t re = (int32_t) lrint(f.real());
+		int32_t im = (int32_t) lrint(f.imag());
 		if (re > max)
 			re = max;
 		else if (re < min)
@@ -235,8 +238,8 @@ Gaussian::getSamples(ComplexInt8 *data, int32_t n)
 		ComplexFloat64 f = getSample();
 
 		// using 4-bit integers, so saturate the output
-		int32_t re = (int32_t) rint(f.real());
-		int32_t im = (int32_t) rint(f.imag());
+		int32_t re = (int32_t) lrint(f.real());
+		int32_t im = (int32_t) lrint(f.imag());
 		if (re > max)
 			re = max;
 		else if (re < min)
@@ -270,8 +273,8 @@ Gaussian::getSamples(ComplexInt16 *data, int32_t n)
 		ComplexFloat64 f = getSample();
 
 		// using 4-bit integers, so saturate the output
-		int32_t re = (int32_t) rint(f.real());
-		int32_t im = (int32_t) rint(f.imag());
+		int32_t re = (int32_t) lrint(f.real());
+		int32_t im = (int32_t) lrint(f.imag());
 		if (re > max)
 			re = max;
 		else if (re < min)
@@ -383,8 +386,8 @@ Gaussian::dirtyGauss()
 {
 	float64_t v1, v2, s;
 	do {
-		float64_t u1 = genrand64_real2();
-		float64_t u2 = genrand64_real2();
+		float64_t u1 = mersenne.genrand64_real2();
+		float64_t u2 = mersenne.genrand64_real2();
 		v1 = 2 * u1 - 1;
 		v2 = 2 * u2 - 1;
 		s = v1 * v1 + v2 * v2;
