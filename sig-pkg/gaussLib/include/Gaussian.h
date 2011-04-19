@@ -45,6 +45,7 @@
 #include <Sonata.h>
 #include <Types.h>
 #include "GaussVersion.h"
+#include "Mersenne.h"
 #include "Signals.h"
 #include "SmallTypes.h"
 
@@ -111,6 +112,7 @@ private:
 	float64_t avgPower;					// average noise power
 	ComplexFloat64 power;				// total power of all samples
 	ComplexFloat64 sum;					// sum of all samples
+	Mersenne mersenne;					// Mersenne Twister prime generator
 	SigList signals;					// list of injected signals
 
 	ComplexFloat64 dirtyGauss();		// generator of dirty Gaussian noise
